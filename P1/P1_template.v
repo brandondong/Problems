@@ -28,9 +28,16 @@ Qed
 Lemma n_valley_or_decr : forall n f x, decr f -> valley f n x \/ exists x', f x' < f x.
 Admitted.
 
-Lemma n_valley_or_k_down_f0 : forall n f k, decr f -> (exists y, valley f n y \/ exists x, f x < (f 0)-k).
+Lemma n_valley_or_k_down_f0 : forall n f k, decr f -> ((exists y, valley f n y) \/ exists x, f x < (f 0)-k).
 Admitted.
 
 Theorem decr_valleys : forall n f, decr f -> exists x, valley f n x.
+Proof.
 intros n f decr_f.
-Admitted.
+specialize (n_valley_or_k_down_f0 n f (f 0) decr_f).
+intros induct_result.
+destruct induct_result as [found|below_0].
+trivial.
+destruct below_0 as [x below_0].
+lia.
+Qed.
