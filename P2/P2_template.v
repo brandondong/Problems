@@ -40,6 +40,13 @@ Proof.
   lia. lia.
 Qed.
 
+Lemma bool_f_cases : forall (f : nat -> bool) x, f x = true \/ f x = false.
+Proof.
+  intros.
+  destruct (f x).
+  left. trivial. right. trivial.
+Qed.
+
 Theorem bool_f_to_0_implies_true : forall f x, bool_f_to_nat f x = 0 -> exists x', f x' = true.
 Proof.
   intros f x eq_0.
@@ -51,13 +58,29 @@ Proof.
   specialize (IHx H). trivial.
   clear IHx.
   simpl in eq_0.
-  assert (f(S x) = true \/ f(S x) = false) as cases. destruct (f (S x)). left. trivial. right. trivial.
+  specialize (bool_f_cases f (S x)).
+  intros cases.
   destruct cases.
   exists (S x). trivial.
   destruct (f (S x)).
   discriminate.
   contradiction.
 Qed.
+
+Lemma decr_applies_all_after : forall f x k, decr f -> f (x+k) <= f x.
+Proof.
+  intros f x k decr_f.
+  induction k.
+  assert (x + 0 = x). lia. rewrite H. lia.
+  unfold decr in decr_f.
+  specialize (decr_f (x+k)).
+  assert ((S (x + k)) = (x + S k)). lia.
+  rewrite <- H.
+  lia.
+Qed.
+
+Theorem bool_f_all_0_implies_constant_0 : forall f, (forall x', bool_f_to_nat f x' <> 0) -> (forall x : nat, f x = false).
+Admitted.
 
 Theorem infvalley_LPO : (forall f, decr f -> exists x, infvalley f x) -> LPO.
 Proof.
@@ -69,7 +92,23 @@ Proof.
   assert ((bool_f_to_nat bool_f x) = 0 \/ (bool_f_to_nat bool_f x) <> 0) as cases. lia.
   destruct cases.
   specialize (bool_f_to_0_implies_true bool_f x H). intros goal. left. trivial.
-Admitted.
+  assert (forall x', bool_f_to_nat bool_f x' <> 0) as all_ne.
+  {
+  intros.
+  assert (x' >= x \/ x' < x) as cases. lia.
+  destruct cases as [gt|lt].
+  unfold infvalley in inf_valley.
+  specialize (inf_valley x' gt).
+  lia.
+  specialize (decr_applies_all_after (bool_f_to_nat bool_f) x' (x-x') convert_decr).
+  assert (x' + (x - x') = x). lia.
+  rewrite H0. clear H0.
+  intros compare.
+  lia.
+  }
+  specialize (bool_f_all_0_implies_constant_0 bool_f all_ne).
+  intros constant. right. trivial.
+Qed.
 
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
 Admitted.
