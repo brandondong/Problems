@@ -80,7 +80,26 @@ Proof.
 Qed.
 
 Theorem bool_f_all_0_implies_constant_0 : forall f, (forall x', bool_f_to_nat f x' <> 0) -> (forall x : nat, f x = false).
-Admitted.
+Proof.
+  intros f no_decr x.
+  destruct x.
+  specialize (bool_f_cases f 0).
+  intros.
+  destruct H.
+  assert (bool_f_to_nat f 0 = 0).
+  simpl. rewrite H. trivial.
+  specialize (no_decr 0). contradiction.
+  trivial.
+  specialize (bool_f_cases f (S x)).
+  intros.
+  destruct H.
+  assert (bool_f_to_nat f (S x) = 0).
+  simpl.
+  rewrite H. trivial.
+  specialize (no_decr (S x)).
+  contradiction.
+  trivial.
+Qed.
 
 Theorem infvalley_LPO : (forall f, decr f -> exists x, infvalley f x) -> LPO.
 Proof.
