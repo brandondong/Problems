@@ -21,20 +21,32 @@ Case 1: We know that all x' > x satisfies f'(x') = 1 due to the infinite valley 
 Qed.
 *)
 
-Fixpoint bool_f_to_decr (f : nat -> bool)(x : nat) : nat :=
+Fixpoint bool_f_to_nat (f : nat -> bool)(x : nat) : nat :=
   match f(x) with
   | true => 0
   | false =>
     match x with
     | 0 => 1
-    | S x' => bool_f_to_decr f x'
+    | S x' => bool_f_to_nat f x'
     end
   end.
+
+Theorem bool_f_to_nat_decr: forall f, decr (bool_f_to_nat f).
+Proof.
+  intros. unfold decr.
+  intros x.
+  simpl.
+  case (f (S x)).
+  lia. lia.
+Qed.
 
 Theorem infvalley_LPO : (forall f, decr f -> exists x, infvalley f x) -> LPO.
 Proof.
   intros.
   unfold LPO. intros bool_f.
+  specialize (bool_f_to_nat_decr bool_f). intros convert_decr.
+  specialize (H (bool_f_to_nat bool_f) convert_decr).
+  destruct H as [x inf_valley].
 Admitted.
 
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
