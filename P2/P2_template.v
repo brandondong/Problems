@@ -15,7 +15,7 @@ To do that, we must use the implication of the infinite valley statement. Specif
 
 Consider a function f' that calls f. It starts at 1 and upon the first true result, goes to 0 and stays there. Clearly this is decreasing so there exists an x such that there is an infinite valley at x.
 f'(x) is either 0 or 1.
-Case 0: f'(x) = 1 implies f(x) = true.
+Case 0: f'(x) = 0 implies f(x) = true or there exists some x' where f(x') = true.
 Case 1: We know that all x' > x satisfies f'(x') = 1 due to the infinite valley result. All x' < x also satisfy f'(x') = 1 since f' is decreasing. This shows that f is always false.
 
 Qed.
@@ -40,6 +40,25 @@ Proof.
   lia. lia.
 Qed.
 
+Theorem bool_f_to_0_implies_true : forall f x, bool_f_to_nat f x = 0 -> exists x', f x' = true.
+Proof.
+  intros f x eq_0.
+  induction x.
+  exists 0. unfold bool_f_to_nat in eq_0.
+  destruct (f 0). trivial. lia.
+  assert (bool_f_to_nat f x = 0 \/ bool_f_to_nat f x <> 0). lia.
+  destruct H.
+  specialize (IHx H). trivial.
+  clear IHx.
+  simpl in eq_0.
+  assert (f(S x) = true \/ f(S x) = false) as cases. destruct (f (S x)). left. trivial. right. trivial.
+  destruct cases.
+  exists (S x). trivial.
+  destruct (f (S x)).
+  discriminate.
+  contradiction.
+Qed.
+
 Theorem infvalley_LPO : (forall f, decr f -> exists x, infvalley f x) -> LPO.
 Proof.
   intros.
@@ -47,6 +66,9 @@ Proof.
   specialize (bool_f_to_nat_decr bool_f). intros convert_decr.
   specialize (H (bool_f_to_nat bool_f) convert_decr).
   destruct H as [x inf_valley].
+  assert ((bool_f_to_nat bool_f x) = 0 \/ (bool_f_to_nat bool_f x) <> 0) as cases. lia.
+  destruct cases.
+  specialize (bool_f_to_0_implies_true bool_f x H). intros goal. left. trivial.
 Admitted.
 
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
