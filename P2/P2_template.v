@@ -137,27 +137,49 @@ This will be basically the same proof as P1.
 The difference is we will need to prove for any x, there is either an infinite valley at x or there exists an x' such that f(x') < f(x) instead of an n-valley.
 
 We will need to use LPO and for that, construct a nat -> bool function from our original nat -> nat function f.
-Consider the function that given x, returns false if f(x) = f(x-1) and true otherwise.
+Since we need to show this property for a particular x, the function conversion should offset by x such that the modified function, when taking in 0 calls f(x).
+Consider the function that given y, returns false if f(y+x) = f(y+x+1) and true otherwise.
 This function is either all false or there exists an x such that x is true.
-The false case implies an infinite valley starting at 0.
-The true case implies an x' such that f(x') < f(x).
+The false case implies an infinite valley starting at 0 (x).
+The true case implies an x' such that f(x') < f(x), namely at f(y+x+1).
 
 Qed.
 *)
 
-Definition f_to_bool (f : nat -> nat)(x : nat) : bool :=
-  match x with
-  | 0 => false
-  | S x' =>
-  match f x' - f (S x') with
+Definition f_to_bool (f : nat -> nat)(offset x : nat) : bool :=
+  match f (x+offset) - f (x+offset+1) with
   | 0 => false
   | _ => true
-  end
   end.
 
 Lemma infvalley_or_decr : LPO -> forall f x, decr f -> (infvalley f x \/ exists x', f x' < f x).
 Proof.
   intros.
+  unfold LPO in H.
+  specialize (H (f_to_bool f x)).
+  destruct H.
+  {
+    right.
+    destruct H as [y H].
+    exists (y+x+1).
+    assert (f (y+x+1) < f (y+x)).
+    {
+      admit.
+    }
+    assert (f (y + x) <= f x).
+    {
+      specialize (decr_applies_all_after f x y H0).
+      intros.
+      assert (y+x = x+y). lia.
+      rewrite H3.
+      trivial.
+    }
+    lia.
+  }
+  {
+    left.
+    admit.
+  }
 Admitted.
 
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
