@@ -236,5 +236,34 @@ Proof.
   }
 Qed.
 
+Lemma infvalley_or_down : LPO -> forall f n, decr f -> ((exists x, infvalley f x) \/ exists x', f x' < f 0-n).
+Proof.
+  intros.
+  induction n.
+  {
+    specialize (infvalley_or_decr H f 0 H0).
+    intros.
+    destruct H1.
+    { left. exists 0. trivial. }
+    { right. assert (f 0 - 0 = f 0). lia. rewrite H2. trivial. }
+  }
+  {
+    destruct IHn.
+    { left. trivial. }
+    {
+      destruct H1.
+      specialize (infvalley_or_decr H f x H0).
+      intros.
+      destruct H2.
+      { left. exists x. trivial. }
+      {
+        right. destruct H2.
+        exists x0.
+        lia.
+      }
+    }
+  }
+Qed.
+
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
 Admitted.
