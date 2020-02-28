@@ -129,5 +129,36 @@ Proof.
   intros constant. right. trivial.
 Qed.
 
+(**
+LPO -> Infinite valley
+Proof:
+
+This will be basically the same proof as P1.
+The difference is we will need to prove for any x, there is either an infinite valley at x or there exists an x' such that f(x') < f(x) instead of an n-valley.
+
+We will need to use LPO and for that, construct a nat -> bool function from our original nat -> nat function f.
+Consider the function that given x, returns false if f(x) = f(x-1) and true otherwise.
+This function is either all false or there exists an x such that x is true.
+The false case implies an infinite valley starting at 0.
+The true case implies an x' such that f(x') < f(x).
+
+Qed.
+*)
+
+Definition f_to_bool (f : nat -> nat)(x : nat) : bool :=
+  match x with
+  | 0 => false
+  | S x' =>
+  match f x' - f (S x') with
+  | 0 => false
+  | _ => true
+  end
+  end.
+
+Lemma infvalley_or_decr : LPO -> forall f x, decr f -> (infvalley f x \/ exists x', f x' < f x).
+Proof.
+  intros.
+Admitted.
+
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
 Admitted.
