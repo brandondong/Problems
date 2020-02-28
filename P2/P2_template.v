@@ -164,7 +164,19 @@ Proof.
     exists (y+x+1).
     assert (f (y+x+1) < f (y+x)).
     {
-      admit.
+      assert (f (y + x) - f (y + x + 1) = 0 \/ f (y + x) - f (y + x + 1) > 0). lia.
+      destruct H1.
+      {
+        assert (f_to_bool f x y = false).
+        {
+          unfold f_to_bool.
+          rewrite H1.
+          trivial.
+        }
+        assert (true = false). rewrite <- H. trivial.
+        discriminate.
+      }
+      { lia. }
     }
     assert (f (y + x) <= f x).
     {
@@ -178,9 +190,51 @@ Proof.
   }
   {
     left.
-    admit.
+    unfold infvalley.
+    intros.
+    induction y.
+    {
+      assert (x = 0). lia.
+      rewrite H2. trivial.
+    }
+    {
+      assert (x = S y \/ x <= y). lia.
+      destruct H2.
+      { rewrite H2. trivial. }
+      {
+        specialize (IHy H2).
+        assert (f (S y) = f y).
+        {
+          specialize (H (y-x)).
+          assert (f (S y) = f y \/ f (S y) <> f y). lia.
+          destruct H3.
+          { trivial. }
+          assert (f_to_bool f x (y - x) = true).
+          {
+            unfold f_to_bool.
+            assert (f (y - x + x) - f (y - x + x + 1) > 0).
+            {
+              assert (f (S y) < f y).
+              {
+                unfold decr in H0.
+                specialize (H0 y).
+                lia.
+              }
+              assert (y - x + x = y). lia. rewrite H5.
+              assert (y+1 = S y). lia. rewrite H6. lia.
+            }
+            destruct (f (y - x + x) - f (y - x + x + 1)). 
+            { lia. }
+            { trivial. }
+          }
+          assert (true = false). rewrite <- H4. trivial.
+          discriminate.
+        }
+        rewrite H3. trivial.
+      }
+    }
   }
-Admitted.
+Qed.
 
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
 Admitted.
