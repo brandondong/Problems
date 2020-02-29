@@ -266,4 +266,13 @@ Proof.
 Qed.
 
 Theorem LPO_infvalley : LPO -> forall f, decr f -> exists x, infvalley f x.
-Admitted.
+Proof.
+  intros.
+  specialize (infvalley_or_down H f (f 0) H0).
+  intros.
+  destruct H1.
+  { trivial. }
+  {
+    destruct H1. lia.
+  }
+Qed.
