@@ -22,10 +22,30 @@ Definition e : X.
 Admitted.
 
 Theorem l_id : forall x, e * x = x.
+Proof.
+  intros.
 Admitted.
 
 Theorem r_id : forall x, x * e = x.
-Admitted.
+Proof.
+  intros.
+  pose (assoc x e x).
+  specialize (l_id (x)).
+  intros.
+  assert (x * x = x * e * x).
+  {
+    assert (x*x = x*(e*x)).
+    {
+      rewrite H.
+      trivial.
+    }
+    rewrite H0.
+    trivial.
+  }
+  pose (r_cancel x x (x*e) H0).
+  symmetry.
+  trivial.
+Qed.
 
 (* the inverse operation *)
 Definition inv : X -> X.
@@ -35,6 +55,31 @@ Theorem l_inv : forall x, (inv x) * x = e.
 Admitted.
 
 Theorem r_inv : forall x, x * (inv x) = e.
-Admitted.
+Proof.
+  intros.
+  pose (assoc x (inv x) x).
+  assert (x * inv x * x = e * x).
+  {
+    assert (x * inv x * x = x * e).
+    {
+      symmetry.
+      specialize (l_inv x).
+      intros.
+      rewrite <- H.
+      trivial.
+    }
+    assert (x * e = e * x).
+    {
+      specialize (r_id x).
+      intros. rewrite H0.
+      specialize (l_id x).
+      intros. symmetry. trivial.
+    }
+    rewrite <- H0.
+    trivial.
+  }
+  pose (r_cancel x (x * inv x) e H).
+  trivial.
+Qed.
 
 End df_inh_cancel_sgroups.
