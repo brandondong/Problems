@@ -17,9 +17,32 @@ Hypothesis assoc : forall x y z, x * (y * z) = (x * y) * z.
 Hypothesis l_cancel : forall x y z, x * y = x * z -> y = z.
 Hypothesis r_cancel : forall x y z, y * x = z * x -> y = z.
 
+Lemma inj_multi: forall a, inj (fun x => x * a).
+Proof.
+  intros.
+  unfold inj.
+  intros.
+  pose (r_cancel a x x' H).
+  trivial.
+Qed.
+
+Lemma surj_multi: forall a, surj (fun x => x * a).
+Proof.
+  intros.
+  specialize (inj_multi a).
+  intros.
+  pose (X_df (fun x => x * a) H).
+  trivial.
+Qed.
+
 Lemma l_eq_solve : forall a b, {x : X & x * a = b}.
 Proof.
-Admitted.
+  intros.
+  pose (surj_multi a).
+  unfold surj in s.
+  pose (s b).
+  trivial.
+Qed.
 
 (* the identity *)
 Definition e : X := projT1 (l_eq_solve x0 x0).
