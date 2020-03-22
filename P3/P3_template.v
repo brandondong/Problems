@@ -17,14 +17,45 @@ Hypothesis assoc : forall x y z, x * (y * z) = (x * y) * z.
 Hypothesis l_cancel : forall x y z, x * y = x * z -> y = z.
 Hypothesis r_cancel : forall x y z, y * x = z * x -> y = z.
 
-(* the identity *)
-Definition e : X.
+Lemma l_eq_solve : forall a b, {x : X & x * a = b}.
+Proof.
 Admitted.
+
+(* the identity *)
+Definition e : X := projT1 (l_eq_solve x0 x0).
 
 Theorem l_id : forall x, e * x = x.
 Proof.
   intros.
-Admitted.
+  assert (e * x0 = x0).
+  {
+    unfold e.
+    destruct (l_eq_solve x0 x0).
+    simpl.
+    trivial.
+  }
+  assert (x * (e * x0) = x * x0).
+  {
+    rewrite H. trivial.
+  }
+  assert ((x * e) * x0 = x * x0).
+  {
+    pose (assoc x e x0). rewrite <- e0. trivial.
+  }
+  pose (r_cancel x0 (x * e) x H1).
+  pose (assoc x e x).
+  assert (x * (e * x) = x * x).
+  {
+    assert (forall a b, a * e = b -> x * (e * x) = a * e * x -> x * (e * x) = b * x).
+    {
+      intros. rewrite <- H2. trivial.
+    }
+    specialize (H2 x x e0 e1).
+    trivial.
+  }
+  pose (l_cancel x (e*x) x H2).
+  trivial.
+Qed.
 
 Theorem r_id : forall x, x * e = x.
 Proof.
