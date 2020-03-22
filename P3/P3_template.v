@@ -79,11 +79,16 @@ Proof.
 Qed.
 
 (* the inverse operation *)
-Definition inv : X -> X.
-Admitted.
+Definition inv : X -> X := fun x => projT1 (l_eq_solve x e).
 
 Theorem l_inv : forall x, (inv x) * x = e.
-Admitted.
+Proof.
+  intros.
+  unfold inv.
+  destruct (l_eq_solve x e).
+  simpl.
+  trivial.
+Qed.
 
 Theorem r_inv : forall x, x * (inv x) = e.
 Proof.
